@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
 
 @Command(name = "generator", mixinStandardHelpOptions = true)
 @Data
-public class GeneratorCommand implements Callable<Integer> {
+public class GenerateCommand implements Callable<Integer> {
 
     /**
      * 是否生成循环

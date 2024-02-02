@@ -2,7 +2,7 @@ package com.shiro.cli;
 
 
 import com.shiro.cli.command.ConfigCommand;
-import com.shiro.cli.command.GeneratorCommand;
+import com.shiro.cli.command.GenerateCommand;
 import com.shiro.cli.command.ListCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -14,7 +14,7 @@ public class CommandExecutor implements Runnable {
 
     {
         commandLine = new CommandLine(this)
-                .addSubcommand(new GeneratorCommand())
+                .addSubcommand(new GenerateCommand())
                 .addSubcommand(new ConfigCommand())
                 .addSubcommand(new ListCommand());
     }

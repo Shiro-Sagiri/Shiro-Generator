@@ -1,6 +1,7 @@
 ### My Custom
 .idea
 *.iml
+generated
 
 ### Java template
 # Compiled class file
