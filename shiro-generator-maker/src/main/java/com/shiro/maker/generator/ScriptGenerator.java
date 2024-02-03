@@ -22,6 +22,7 @@ public class ScriptGenerator {
             Files.setPosixFilePermissions(Paths.get(outputPath), permissions);
         } catch (Exception ignored) {
         }
+        FileUtil.writeBytes(stringBuilder.toString().getBytes(StandardCharsets.UTF_8), outputPath);
 
         // windows
         stringBuilder = new StringBuilder();

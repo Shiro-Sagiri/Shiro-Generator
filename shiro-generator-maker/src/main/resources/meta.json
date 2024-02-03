@@ -6,8 +6,9 @@
   "author": "shiro",
   "createTime": "2024-2-2",
   "fileConfig": {
-    "inputRootPath": "D:/Code/shiro-generator/shiro-generator-demo-projects/acm-template-pro",
+    "inputRootPath": ".source/acm-template-pro",
     "outputRootPath": "generated",
+    "sourceRootPath": "D:/Code/shiro-generator/shiro-generator-demo-projects/acm-template-pro",
     "type": "dir",
     "files": [
       {
@@ -34,7 +35,7 @@
     "models": [
       {
         "fieldName": "loop",
-        "type": "boolean",
+        "type": "Boolean",
         "description": "是否生成循环",
         "defaultValue": false,
         "abbr": "l"
