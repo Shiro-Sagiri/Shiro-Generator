@@ -2,19 +2,40 @@ package ${basePackage}.model;
 
 import lombok.Data;
 
+<#macro generateModel indent modelInfo>
+<#if modelInfo.description??>
+${indent}/**
+${indent}* ${modelInfo.description}
+${indent}*/
+</#if>
+${indent}public ${modelInfo.type} ${modelInfo.fieldName}<#if modelInfo.defaultValue??> = ${modelInfo.defaultValue?c};
+</#if>
+</#macro>
+
 /**
  * 数据模型
  */
 @Data
 public class DataModel {
 <#list modelConfig.models as modelInfo>
-
-    <#if modelInfo.description??>
+<#--    有分组-->
+<#if modelInfo.groupKey??>
     /**
-     * ${modelInfo.description}
+     * ${modelInfo.groupName}
      */
-    </#if>
-    private ${modelInfo.type} ${modelInfo.fieldName}<#if modelInfo.defaultValue??> = ${modelInfo.defaultValue?c}</#if>;
+    public ${modelInfo.type} ${modelInfo.groupKey} = new ${modelInfo.type}();
 
+    /**
+    * ${modelInfo.description}
+    */
+    @Data
+    public static class ${modelInfo.type} {
+    <#list modelInfo.models as models>
+    <@generateModel indent="        " modelInfo=models />
+    </#list>
+    }
+<#else>
+    <@generateModel indent="    " modelInfo=modelInfo />
+</#if>
 </#list>
 }

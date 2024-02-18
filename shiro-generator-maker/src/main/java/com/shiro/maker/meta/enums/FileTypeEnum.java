@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum FileTypeEnum {
 
     DIR("目录", "dir"),
-    FILE("文件", "file");
+    FILE("文件", "file"),
+    GROUP("分组", "group");
 
     private final String text;
 

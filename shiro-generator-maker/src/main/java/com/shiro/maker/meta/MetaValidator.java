@@ -11,6 +11,7 @@ import com.shiro.maker.meta.enums.ModelTypeEnum;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MetaValidator {
 
@@ -41,6 +42,14 @@ public class MetaValidator {
         }
         for (Meta.ModelConfig.ModelInfo model : models) {
             String fieldName = model.getFieldName();
+            //为group不校验
+            if (StrUtil.isNotEmpty(model.getGroupKey())) {
+                //生成中间参数 "--author", "--outputText"
+                List<Meta.ModelConfig.ModelInfo> subModels = model.getModels();
+                String allArgsStr = subModels.stream().map(subModel -> String.format("\"--%s\"", subModel.getFieldName())).collect(Collectors.joining(", "));
+                model.setAllArgsStr(allArgsStr);
+                continue;
+            }
             if (StrUtil.isBlank(fieldName)) {
                 throw new MetaException("未填写 fieldName");
             }
@@ -80,6 +89,10 @@ public class MetaValidator {
         }
         for (Meta.FileConfig.FileInfo fileInfo : files) {
             String inputPath = fileInfo.getInputPath();
+            //若文件类型为组,则特殊校验
+            if (FileTypeEnum.GROUP.getValue().equals(fileInfo.getType())) {
+                continue;
+            }
             if (StrUtil.isBlank(inputPath)) {
                 throw new MetaException("未填写 inputPath");
             }
