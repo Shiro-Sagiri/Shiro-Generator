@@ -1,6 +1,7 @@
 ### My Custom
 .idea
 *.iml
+.temp
 generated
 
 ### Java template
