@@ -29,5 +29,7 @@ public class TemplateMakerModelConfig {
         private String condition;
         private String groupName;
         private String groupKey;
+        private String type;
+        private String description;
     }
 }

@@ -9,6 +9,7 @@ import com.shiro.maker.meta.enums.FileTypeEnum;
 import com.shiro.maker.meta.enums.ModelTypeEnum;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,11 +75,12 @@ public class MetaValidator {
             throw new MetaException("未填写 sourceRootPath");
         }
         String inputRootPath = fileConfig.getInputRootPath();
-        String defaultInputRootPath = ".source" + File.separator + FileUtil.getLastPathEle(Paths.get(sourceRootPath)).getFileName().toString();
+        Path rootPath = Paths.get(sourceRootPath);
+        String defaultInputRootPath = ".source/" + FileUtil.getLastPathEle(rootPath).getFileName().toString();
         inputRootPath = StrUtil.emptyToDefault(inputRootPath, defaultInputRootPath);
         fileConfig.setInputRootPath(inputRootPath);
         String outputRootPath = fileConfig.getOutputRootPath();
-        outputRootPath = StrUtil.emptyToDefault(outputRootPath, "generated");
+        outputRootPath = StrUtil.emptyToDefault(outputRootPath, FileUtil.getLastPathEle(rootPath).getFileName().toString());
         fileConfig.setOutputRootPath(outputRootPath);
         String fileConfigType = fileConfig.getType();
         fileConfigType = StrUtil.emptyToDefault(fileConfigType, FileTypeEnum.DIR.getValue());

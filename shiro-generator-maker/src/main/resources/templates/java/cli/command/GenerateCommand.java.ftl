@@ -17,8 +17,8 @@ ${indent}private ${modelInfo.type} ${modelInfo.fieldName}<#if modelInfo.defaultV
 
 <#macro generateCommand intent modelInfo>
 ${intent}System.out.println("输入${modelInfo.groupName}配置: ");
-${intent}CommandLine commandLine = new CommandLine(${modelInfo.type}Command.class);
-${intent}commandLine.execute(${modelInfo.allArgsStr});
+${intent}CommandLine ${modelInfo.groupKey}CommandLine = new CommandLine(${modelInfo.type}Command.class);
+${intent}${modelInfo.groupKey}CommandLine.execute(${modelInfo.allArgsStr});
 </#macro>
 
 @Command(name = "generate", description = "生成代码", mixinStandardHelpOptions = true)

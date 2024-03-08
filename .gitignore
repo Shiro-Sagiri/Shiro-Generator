@@ -1,7 +1,7 @@
 ### My Custom
+.vscode
 .idea
 *.iml
-.temp
 generated
 
 ### Java template
