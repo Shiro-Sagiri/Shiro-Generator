@@ -49,6 +49,18 @@ const IndexPage = () => {
     </div>
   }
 
+  const tagList = new Set()
+
+  dataList.map((data) => {
+    data.tags?.forEach(item => tagList.add(item))
+  });
+
+  const options = Array.from(tagList).map((tag) => ({
+    value: tag,
+    // @ts-ignore
+    label: <Tag color={"cyan"}>{tag}</Tag>,
+  }));
+
   // @ts-ignore
   return (
     <PageContainer pageHeaderRender={() => false}>
@@ -74,10 +86,6 @@ const IndexPage = () => {
               size={"large"}
               placeholder="搜索代码生成器"
               enterButton="搜索"
-              value={searchParams.searchText}
-              onChange={(e) => {
-                searchParams.searchText = e.target.value
-              }}
               onSearch={(value: string) => {
                 setSearchParams({...DEFAULT_PAGE_PARAMS, searchText: value})
               }}
@@ -86,19 +94,24 @@ const IndexPage = () => {
         </div>
 
         <QueryFilter
-          submitter={false}
           span={8}
           labelWidth="auto"
+          defaultCollapsed={false}
           onFinish={async (value: API.GeneratorQueryRequest) => {
             setSearchParams({
               ...DEFAULT_PAGE_PARAMS,
               ...value
             })
           }}
+          onReset={() => {
+            setSearchParams({
+              ...DEFAULT_PAGE_PARAMS
+            })
+          }}
         >
           <ProFormText label='名称' name="name"/>
+          <ProFormSelect label='标签' name="tags" mode={"tags"} options={options}/>
           <ProFormText label='描述' name="description"/>
-          <ProFormSelect label='标签' name="tags" mode={"tags"}/>
         </QueryFilter>
       </div>
       <List

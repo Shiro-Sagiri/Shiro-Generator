@@ -6,6 +6,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+src/main/resources/application-local.yml
 
 ### STS ###
 .apt_generated
@@ -60,7 +61,6 @@ build/
 hs_err_pid*
 
 ### Maven template
-target/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -119,7 +119,6 @@ cmake-build-*/
 .idea/**/mongoSettings.xml
 
 # File-based project format
-*.iws
 
 # IntelliJ
 out/
