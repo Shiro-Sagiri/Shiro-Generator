@@ -14,10 +14,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Cos 对象存储操作
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
+ * MinIO 对象存储操作
  */
 @Component
 public class MinioManager {
@@ -40,11 +37,33 @@ public class MinioManager {
         return minioClient.bucketExists(BucketExistsArgs.builder().bucket(name).build());
     }
 
-    public String upload(InputStream inputStream, FileUploadBizEnum fileUploadBizEnum, String fileName, Long userId) {
-        fileName = RandomStringUtils.randomAlphanumeric(8) + "-" + fileName;
-        String filepath = String.format("/%s/%s/%s", fileUploadBizEnum.getValue(), userId, fileName);
-        minioClient.putObject(PutObjectArgs.builder().build());
-        return null;
+    public String getFileUrl(String filePath) {
+        return minIOConfig.getEndpoint() + "/" + minIOConfig.getBucket() + filePath;
+    }
+
+    public String uploadFile(InputStream inputStream, String filePath) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        minioClient.putObject(PutObjectArgs.builder()
+                .bucket(minIOConfig.getBucket())
+                .object(filePath)
+                .stream(inputStream, inputStream.available(), -1)
+                .build());
+        return getFileUrl(filePath);
+    }
+
+    public InputStream getFIleInputStream(String filePath) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        GetObjectArgs request = GetObjectArgs.builder()
+                .bucket(minIOConfig.getBucket())
+                .object(filePath)
+                .build();
+        return minioClient.getObject(request);
+    }
+
+    public void removeFile(String filePath) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        RemoveObjectArgs request = RemoveObjectArgs.builder()
+                .bucket(minIOConfig.getBucket())
+                .object(filePath)
+                .build();
+        minioClient.removeObject(request);
     }
 
 }

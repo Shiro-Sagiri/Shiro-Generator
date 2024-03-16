@@ -15,7 +15,7 @@ public class ScriptGenerator {
         //Linux 脚本
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("#!/bin/bash").append("\n");
-        stringBuilder.append(String.format("java -jar %s \"$@\"", jarPath));
+        stringBuilder.append(String.format("java -jar %s \"$@\"", jarPath.replace("target\\", "target/")));
         //添加可执行权限
         Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxrwxrwx");
         try {

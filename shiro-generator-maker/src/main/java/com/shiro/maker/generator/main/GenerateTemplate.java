@@ -3,6 +3,7 @@ package com.shiro.maker.generator.main;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ZipUtil;
 import com.shiro.maker.generator.JarGenerator;
 import com.shiro.maker.generator.ScriptGenerator;
 import com.shiro.maker.generator.file.DynamicFileGenerator;
@@ -47,14 +48,27 @@ public abstract class GenerateTemplate {
     }
 
     /**
+     * 压缩产物包
+     *
+     * @param outputPath 项目输出路径
+     * @return zipPath 压缩包路径
+     */
+    protected String buildZip(String outputPath) {
+        String zipPath = outputPath + ".zip";
+        ZipUtil.zip(outputPath, zipPath);
+        return zipPath;
+    }
+
+    /**
      * 生成精简版的程序(产物包)
      *
      * @param outputPath          项目输出路径
      * @param sourceCopyDestPath  原始模板代码文件路径
      * @param jarPath             jar 包路径
      * @param shellOutputFilePath 可执行文件路径
+     * @return distOutputPath 产物包路径
      */
-    protected void buildDist(String outputPath, String sourceCopyDestPath, String jarPath, String shellOutputFilePath) {
+    protected String buildDist(String outputPath, String sourceCopyDestPath, String jarPath, String shellOutputFilePath) {
         String distOutputPath = outputPath + "-dist";
         // - 拷贝 jar 包
         String targetAbsolutePath = distOutputPath + File.separator + "target";
@@ -66,6 +80,7 @@ public abstract class GenerateTemplate {
         FileUtil.copy(shellOutputFilePath + ".bat", distOutputPath, true);
         // - 拷贝原模板代码文件
         FileUtil.copy(sourceCopyDestPath, distOutputPath, true);
+        return distOutputPath;
     }
 
     /**

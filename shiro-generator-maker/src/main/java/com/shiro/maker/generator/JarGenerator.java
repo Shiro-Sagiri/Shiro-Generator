@@ -5,7 +5,6 @@ import java.io.*;
 public class JarGenerator {
 
     public static void doGenerate(String projectDir) throws IOException, InterruptedException {
-//        String OtherMavenCommand = "mvn clean package -DskipTests=true";
         String winMavenCommand = "mvn.cmd clean package -DskipTests=true";
 
         ProcessBuilder processBuilder = new ProcessBuilder(winMavenCommand.split(" "));

@@ -1,13 +1,9 @@
 package com.shiro.web.controller;
 
 import cn.hutool.core.io.FileUtil;
-import com.qcloud.cos.model.COSObject;
-import com.qcloud.cos.model.COSObjectInputStream;
-import com.qcloud.cos.utils.IOUtils;
 import com.shiro.web.common.BaseResponse;
 import com.shiro.web.common.ErrorCode;
 import com.shiro.web.common.ResultUtils;
-import com.shiro.web.constant.FileConstant;
 import com.shiro.web.exception.BusinessException;
 import com.shiro.web.manager.MinioManager;
 import com.shiro.web.model.dto.file.UploadFileRequest;
@@ -15,6 +11,7 @@ import com.shiro.web.model.entity.User;
 import com.shiro.web.model.enums.FileUploadBizEnum;
 import com.shiro.web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,14 +20,12 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 /**
  * 文件接口
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
 @RestController
 @RequestMapping("/file")
@@ -41,19 +36,19 @@ public class FileController {
     private UserService userService;
 
     @Resource
-    private MinioManager cosManager;
+    private MinioManager minioManager;
 
     /**
      * 文件上传
      *
-     * @param multipartFile
-     * @param uploadFileRequest
-     * @param request
-     * @return
+     * @param multipartFile     文件
+     * @param uploadFileRequest 业务类型
+     * @param request           请求
+     * @return 文件地址
      */
     @PostMapping("/upload")
     public BaseResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
-                                           UploadFileRequest uploadFileRequest, HttpServletRequest request) throws IOException {
+                                           UploadFileRequest uploadFileRequest, HttpServletRequest request) {
         String biz = uploadFileRequest.getBiz();
         FileUploadBizEnum fileUploadBizEnum = FileUploadBizEnum.getEnumByValue(biz);
         if (fileUploadBizEnum == null) {
@@ -70,12 +65,12 @@ public class FileController {
             // 上传文件
             file = File.createTempFile(filepath, null);
             multipartFile.transferTo(file);
-            cosManager.putObject(filepath, file);
+            String url = minioManager.uploadFile(Files.newInputStream(file.toPath()), filepath);
             // 返回可访问地址
-            return ResultUtils.success(FileConstant.COS_HOST + filepath);
-//        } catch (Exception e) {
-//            log.error("file upload error, filepath = " + filepath, e);
-//            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
+            return ResultUtils.success(url);
+        } catch (Exception e) {
+            log.error("file upload error, filepath = " + filepath, e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
         } finally {
             if (file != null) {
                 // 删除临时文件
@@ -88,32 +83,23 @@ public class FileController {
     }
 
     @GetMapping("/download")
-    public BaseResponse<String> downloadFile(String filePath, HttpServletResponse response) throws IOException {
-        COSObjectInputStream cosObjectInputStream = null;
-        try {
-            COSObject cosObject = cosManager.getObject(filePath);
-            cosObjectInputStream = cosObject.getObjectContent();
-            byte[] fileBytes = IOUtils.toByteArray(cosObjectInputStream);
+    public void downloadFile(String filePath, HttpServletResponse response) {
+        try (InputStream fileInputStream = minioManager.getFIleInputStream(filePath)) {
+            byte[] fileBytes = IOUtils.toByteArray(fileInputStream);
             response.setContentType("application/octet-stream;charset=UTF-8");
-            response.setHeader("content-Disposition", "attachment; filename=" + filePath);
+            response.setHeader("Content-Disposition", "attachment; filename=" + filePath);
             response.getOutputStream().write(fileBytes);
             response.getOutputStream().flush();
-            response.getOutputStream().close();
         } catch (Exception e) {
             log.error("file download failure,file path = " + filePath, e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "下载失败");
-        } finally {
-            if (cosObjectInputStream != null) {
-                cosObjectInputStream.close();
-            }
         }
-        return ResultUtils.success("下载成功");
     }
 
     /**
      * 校验文件
      *
-     * @param multipartFile
+     * @param multipartFile     文件
      * @param fileUploadBizEnum 业务类型
      */
     private void validFile(MultipartFile multipartFile, FileUploadBizEnum fileUploadBizEnum) {

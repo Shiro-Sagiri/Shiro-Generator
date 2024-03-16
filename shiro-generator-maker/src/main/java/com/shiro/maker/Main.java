@@ -1,14 +1,14 @@
 package com.shiro.maker;
 
-import com.shiro.maker.generator.MainGenerator;
+import com.shiro.maker.generator.main.ZipGenerator;
 
 import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        MainGenerator mainGenerator = new MainGenerator();
+        ZipGenerator generator = new ZipGenerator();
         try {
-            mainGenerator.doGenerate();
+            generator.doGenerate();
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
