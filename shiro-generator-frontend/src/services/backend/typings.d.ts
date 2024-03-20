@@ -69,9 +69,9 @@ declare namespace API {
     id?: number;
   };
 
-  type downloadFileUsingGETParams = {
-    /** filePath */
-    filePath?: string;
+  type downloadGeneratorByIdUsingGETParams = {
+    /** id */
+    id?: number;
   };
 
   type FileConfig = {
@@ -115,6 +115,7 @@ declare namespace API {
   type GeneratorAddRequest = {
     basePackage?: string;
     description?: string;
+    distPath?: string;
     fileConfig?: FileConfig;
     modelConfig?: ModelConfig;
     name?: string;
@@ -140,6 +141,7 @@ declare namespace API {
   type GeneratorUpdateRequest = {
     basePackage?: string;
     description?: string;
+    distPath?: string;
     fileConfig?: FileConfig;
     id?: number;
     modelConfig?: ModelConfig;

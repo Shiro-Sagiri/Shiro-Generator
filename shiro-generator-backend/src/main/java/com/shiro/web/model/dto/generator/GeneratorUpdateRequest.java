@@ -58,5 +58,7 @@ public class GeneratorUpdateRequest implements Serializable {
      */
     private Integer status;
 
+    private String distPath;
+
     private static final long serialVersionUID = 1L;
 }

@@ -11,16 +11,16 @@ import com.shiro.web.model.entity.User;
 import com.shiro.web.model.enums.FileUploadBizEnum;
 import com.shiro.web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Arrays;
 
@@ -65,9 +65,9 @@ public class FileController {
             // 上传文件
             file = File.createTempFile(filepath, null);
             multipartFile.transferTo(file);
-            String url = minioManager.uploadFile(Files.newInputStream(file.toPath()), filepath);
+            minioManager.uploadFile(Files.newInputStream(file.toPath()), filepath);
             // 返回可访问地址
-            return ResultUtils.success(url);
+            return ResultUtils.success(filepath);
         } catch (Exception e) {
             log.error("file upload error, filepath = " + filepath, e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
@@ -79,20 +79,6 @@ public class FileController {
                     log.error("file delete error, filepath = {}", filepath);
                 }
             }
-        }
-    }
-
-    @GetMapping("/download")
-    public void downloadFile(String filePath, HttpServletResponse response) {
-        try (InputStream fileInputStream = minioManager.getFIleInputStream(filePath)) {
-            byte[] fileBytes = IOUtils.toByteArray(fileInputStream);
-            response.setContentType("application/octet-stream;charset=UTF-8");
-            response.setHeader("Content-Disposition", "attachment; filename=" + filePath);
-            response.getOutputStream().write(fileBytes);
-            response.getOutputStream().flush();
-        } catch (Exception e) {
-            log.error("file download failure,file path = " + filePath, e);
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "下载失败");
         }
     }
 

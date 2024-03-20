@@ -49,5 +49,7 @@ public class GeneratorAddRequest implements Serializable {
      */
     private Meta.ModelConfig modelConfig;
 
+    private String distPath;
+
     private static final long serialVersionUID = 1L;
 }

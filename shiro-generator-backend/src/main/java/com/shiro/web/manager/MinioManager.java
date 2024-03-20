@@ -1,10 +1,8 @@
 package com.shiro.web.manager;
 
 import com.shiro.web.config.MinioConfig;
-import com.shiro.web.model.enums.FileUploadBizEnum;
 import io.minio.*;
 import io.minio.errors.*;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;

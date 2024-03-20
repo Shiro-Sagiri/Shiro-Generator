@@ -5,6 +5,19 @@ import {ProFormSelect, QueryFilter} from "@ant-design/pro-form";
 import {PageContainer, ProFormText} from "@ant-design/pro-components";
 import moment from "moment";
 import {UserOutlined} from "@ant-design/icons";
+import {Link} from "@umijs/max";
+import {MINIO_HOST} from "@/constants";
+
+export const tagListView = (tagList: string[]) => {
+  if (!tagList) {
+    return <></>
+  }
+  return <div>
+    {tagList.map((tag) => (
+      <Tag key={tag}>{tag}</Tag>
+    ))}
+  </div>
+}
 
 const IndexPage = () => {
 
@@ -12,7 +25,7 @@ const IndexPage = () => {
     current: 1,
     pageSize: 4,
     sortField: 'createTime',
-    sortOrder: 'ascend'
+    sortOrder: 'descend'
   }
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -38,21 +51,10 @@ const IndexPage = () => {
     doSearch()
   }, [searchParams])
 
-  const tagListView = (tagList: string[]) => {
-    if (!tagList) {
-      return <></>
-    }
-    return <div>
-      {tagList.map((tag) => (
-        <Tag key={tag}>{tag}</Tag>
-      ))}
-    </div>
-  }
-
   const tagList = new Set()
 
   dataList.map((data) => {
-    data.tags?.forEach(item => tagList.add(item))
+    return data.tags?.forEach(item => tagList.add(item))
   });
 
   const options = Array.from(tagList).map((tag) => ({
@@ -143,28 +145,30 @@ const IndexPage = () => {
         }}
         renderItem={(item) => (
           <List.Item>
-            <Card
-              hoverable
-              cover={<img src={item.picture} alt={item.name}/>}
-            >
-              <Card.Meta
-                title={<a>{item.name}</a>}
-                description={
-                  <Typography.Paragraph ellipsis={{rows: 2}}>
-                    {item.description}
-                  </Typography.Paragraph>
-                }
-              />
-              {tagListView(item.tags ?? [])}
-              <Flex justify={"space-between"} align={"center"}>
-                <Typography.Text type={"secondary"} style={{fontSize: 12}}>
-                  {moment(item.createTime).fromNow()}
-                </Typography.Text>
-                <div>
-                  <Avatar src={item.user?.userAvatar ?? <UserOutlined/>}/>
-                </div>
-              </Flex>
-            </Card>
+            <Link to={`/generator/detail/${item.id}`}>
+              <Card
+                hoverable
+                cover={<img src={MINIO_HOST + item.picture} alt={item.name}/>}
+              >
+                <Card.Meta
+                  title={<a>{item.name}</a>}
+                  description={
+                    <Typography.Paragraph ellipsis={{rows: 2}}>
+                      {item.description}
+                    </Typography.Paragraph>
+                  }
+                />
+                {tagListView(item.tags ?? [])}
+                <Flex justify={"space-between"} align={"center"}>
+                  <Typography.Text type={"secondary"} style={{fontSize: 12}}>
+                    {moment(item.createTime).fromNow()}
+                  </Typography.Text>
+                  <div>
+                    <Avatar src={item.user?.userAvatar ?? <UserOutlined/>}/>
+                  </div>
+                </Flex>
+              </Card>
+            </Link>
           </List.Item>
         )
         }

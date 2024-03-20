@@ -24,6 +24,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+import static com.shiro.web.constant.UserConstant.USER_LOGIN_STATE;
 import static com.shiro.web.service.impl.UserServiceImpl.SALT;
 
 /**
@@ -109,6 +110,12 @@ public class UserController {
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.getLoginUserVO(user));
+    }
+
+    @GetMapping("/get/currentUser")
+    public BaseResponse<LoginUserVO> getCurrentUser(HttpServletRequest request) {
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        return ResultUtils.success((LoginUserVO) userObj);
     }
 
     // endregion

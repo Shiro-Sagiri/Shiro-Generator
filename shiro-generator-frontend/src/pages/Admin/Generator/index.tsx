@@ -106,7 +106,7 @@ const Generator = () => {
         if (keyword && typeof text === 'string' && text.toLowerCase().includes(keyword.toLowerCase())) {
           const parts = text.split(new RegExp(`(${keyword})`, 'gi'));
           return <span>{parts.map((part: string) => part.toLowerCase() === keyword.toLowerCase() ?
-            <span className={highlight}>{part}</span> : part)}</span>;
+            <span key={part} className={highlight}>{part}</span> : part)}</span>;
         }
         return text;
       },
@@ -123,7 +123,7 @@ const Generator = () => {
         if (keyword && typeof text === 'string' && text.toLowerCase().includes(keyword.toLowerCase())) {
           const parts = text.split(new RegExp(`(${keyword})`, 'gi'));
           return <span>{parts.map((part: string) => part.toLowerCase() === keyword.toLowerCase() ?
-            <span className={highlight}>{part}</span> : part)}</span>;
+            <span key={part} className={highlight}>{part}</span> : part)}</span>;
         }
         return text;
       }
@@ -145,7 +145,7 @@ const Generator = () => {
           return <></>
         }
         return JSON.parse(record.tags).map(((tag: string) => {
-          return (<Tag color={"cyan"}>{tag}</Tag>)
+          return (<Tag key={tag} color={"cyan"}>{tag}</Tag>)
         }))
       }
     },
@@ -160,7 +160,7 @@ const Generator = () => {
         if (keyword && typeof text === 'string' && text.toLowerCase().includes(keyword.toLowerCase())) {
           const parts = text.split(new RegExp(`(${keyword})`, 'gi'));
           return <span>{parts.map((part: string) => part.toLowerCase() === keyword.toLowerCase() ?
-            <span className={highlight}>{part}</span> : part)}</span>;
+            <span key={part} className={highlight}>{part}</span> : part)}</span>;
         }
         return text;
       },

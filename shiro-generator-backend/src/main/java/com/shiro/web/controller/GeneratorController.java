@@ -1,5 +1,6 @@
 package com.shiro.web.controller;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.shiro.web.annotation.AuthCheck;
@@ -10,6 +11,7 @@ import com.shiro.web.common.ResultUtils;
 import com.shiro.web.constant.UserConstant;
 import com.shiro.web.exception.BusinessException;
 import com.shiro.web.exception.ThrowUtils;
+import com.shiro.web.manager.MinioManager;
 import com.shiro.web.meta.Meta;
 import com.shiro.web.model.dto.generator.GeneratorAddRequest;
 import com.shiro.web.model.dto.generator.GeneratorQueryRequest;
@@ -20,11 +22,14 @@ import com.shiro.web.model.vo.GeneratorVO;
 import com.shiro.web.service.GeneratorService;
 import com.shiro.web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 import java.util.List;
 
 
@@ -38,6 +43,9 @@ public class GeneratorController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private MinioManager minioManager;
 
     // region 增删改查
 
@@ -211,4 +219,34 @@ public class GeneratorController {
                 generatorService.getQueryWrapper(generatorQueryRequest));
     }
     // endregion
+
+    @GetMapping("/download")
+    public void downloadGeneratorById(Long id, HttpServletRequest request, HttpServletResponse response) {
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        Generator generator = generatorService.getById(id);
+        if (generator == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        String filePath = generator.getDistPath();
+        if (StrUtil.isBlank(filePath)) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "产物包不存在");
+        }
+
+        User loginUser = userService.getLoginUser(request);
+        log.info("用户 {} 下载了 {}", loginUser, filePath);
+
+        try (InputStream fileInputStream = minioManager.getFIleInputStream(filePath)) {
+            byte[] fileBytes = IOUtils.toByteArray(fileInputStream);
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=" + filePath);
+            response.getOutputStream().write(fileBytes);
+            response.getOutputStream().flush();
+        } catch (Exception e) {
+            log.error("file download failure,file path = " + filePath, e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "下载失败");
+        }
+    }
 }
