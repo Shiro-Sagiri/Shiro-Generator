@@ -12,7 +12,7 @@ import java.io.IOException;
 
 @Data
 @CommandLine.Command(name = "json-generator", description = "根据json文件生成代码", mixinStandardHelpOptions = true)
-public class JsonGeneratorCommand implements Runnable {
+public class JsonGenerateCommand implements Runnable {
 
     @CommandLine.Option(names = {"--filePath"}, arity = "0..1", description = "json文件路径", interactive = true, echo = true)
     private String filePath;

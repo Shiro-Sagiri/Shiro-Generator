@@ -1,12 +1,12 @@
 import {listGeneratorVoByPageUsingPost} from "@/services/backend/generatorController";
-import {Avatar, Card, Flex, Input, List, message, Tag, Typography} from "antd";
 import React, {useEffect, useState} from "react";
 import {ProFormSelect, QueryFilter} from "@ant-design/pro-form";
 import {PageContainer, ProFormText} from "@ant-design/pro-components";
+import {Avatar, Card, Flex, Input, List, message, Tag, Typography} from "antd";
+import { Link } from "@umijs/max";
 import moment from "moment";
-import {UserOutlined} from "@ant-design/icons";
-import {Link} from "@umijs/max";
-import {MINIO_HOST} from "@/constants";
+import { MINIO_HOST } from "@/constants";
+import { UserOutlined } from "@ant-design/icons";
 
 export const tagListView = (tagList: string[]) => {
   if (!tagList) {
@@ -23,7 +23,7 @@ const IndexPage = () => {
 
   const DEFAULT_PAGE_PARAMS: PageRequest = {
     current: 1,
-    pageSize: 4,
+    pageSize: 5,
     sortField: 'createTime',
     sortOrder: 'descend'
   }
@@ -117,6 +117,7 @@ const IndexPage = () => {
         </QueryFilter>
       </div>
       <List
+        // className={`${CardListStyle} ${AntListItemStyle}`}
         grid={{
           gutter: 16,
           xs: 1,

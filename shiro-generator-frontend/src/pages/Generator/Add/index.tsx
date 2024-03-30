@@ -19,9 +19,11 @@ import {
 import {history} from "@umijs/max";
 import {useSearchParams} from "react-router-dom";
 import {MINIO_HOST} from "@/constants";
+import ModelConfigForm from "@/pages/Generator/Add/components/ModelConfigForm";
 
 const GeneratorAdd = () => {
-  const formRef = useRef<ProFormInstance>();
+  const baseFormRef = useRef<ProFormInstance>();
+  const modelFormRef = useRef<ProFormInstance>();
   const [searchParams] = useSearchParams()
   const id = searchParams.get('id')
   const [oldData, setOldData] = useState<API.GeneratorUpdateRequest>()
@@ -103,14 +105,12 @@ const GeneratorAdd = () => {
   return (
     <ProCard>
       {(!id || oldData) && (
-        <StepsForm<API.GeneratorAddRequest> formRef={formRef} onFinish={doSubmit} formProps={{initialValues: oldData}}>
+        <StepsForm<API.GeneratorAddRequest> formRef={baseFormRef} onFinish={doSubmit}
+                                            formProps={{initialValues: oldData}}>
           <StepsForm.StepForm
             name="base"
             title="基本信息"
-            onFinish={async () => {
-              console.log(formRef.current?.getFieldsValue());
-              return true;
-            }}
+            onFinish={async () => true}
           >
             <ProFormText name="name" label="名称" placeholder="请输入名称"/>
             <ProFormTextArea name="description" label="描述" placeholder="请输入描述"/>
@@ -121,10 +121,11 @@ const GeneratorAdd = () => {
               <PictureUploader biz="generator_picture"/>
             </ProFormItem>
           </StepsForm.StepForm>
-          <StepsForm.StepForm name="fileConfig" title="文件配置">
-            todo
+          <StepsForm.StepForm formRef={modelFormRef} name="modelConfig" title="模型配置"
+                              onFinish={async () => true}>
+            <ModelConfigForm formRef={modelFormRef} oldData={oldData}/>
           </StepsForm.StepForm>
-          <StepsForm.StepForm name="modelConfig" title="模型配置">
+          <StepsForm.StepForm name="fileConfig" title="文件配置">
             todo
           </StepsForm.StepForm>
           <StepsForm.StepForm name="dist" title="生成器文件">

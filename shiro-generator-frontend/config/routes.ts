@@ -15,25 +15,32 @@ export default [
     access: 'canAdmin',
     routes: [
       {path: '/admin', redirect: '/admin/user'},
-      {icon: 'table', path: '/admin/user', component: './Admin/User', name: '用户管理'},
-      {icon: 'tool', path: 'admin/generator', component: './Admin/Generator', name: '生成器管理'},
+      {icon: 'table', path: 'user', component: './Admin/User', name: '用户管理'},
+      {icon: 'tool', path: 'generator', component: './Admin/Generator', name: '生成器管理'},
     ],
   },
   {
-    path: '/generator/add',
-    icon: 'plus',
-    component: './Generator/Add',
-    name: '创建生成器',
-  },
-  {
-    path: '/generator/update',
-    component: './Generator/Add',
-    hideInMenu: true
-  },
-  {
-    path: '/generator/detail/:id',
-    component: './Generator/Detail',
-    hideInMenu: true
+    path: 'generator',
+    name: '代码生成器',
+    icon: 'CloudDownloadOutlined',
+    routes: [
+      {
+        path: 'add',
+        icon: 'plus',
+        component: './Generator/Add',
+        name: '创建生成器',
+      },
+      {
+        path: 'update',
+        component: './Generator/Add',
+        hideInMenu: true
+      },
+      {
+        path: 'detail/:id',
+        component: './Generator/Detail',
+        hideInMenu: true
+      },
+    ]
   },
   {path: '*', layout: false, component: './404'},
 ];
