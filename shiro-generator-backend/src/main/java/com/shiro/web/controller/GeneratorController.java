@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.shiro.maker.meta.Meta;
 import com.shiro.web.annotation.AuthCheck;
 import com.shiro.web.common.BaseResponse;
 import com.shiro.web.common.DeleteRequest;
@@ -14,11 +15,7 @@ import com.shiro.web.constant.UserConstant;
 import com.shiro.web.exception.BusinessException;
 import com.shiro.web.exception.ThrowUtils;
 import com.shiro.web.manager.MinioManager;
-import com.shiro.web.meta.Meta;
-import com.shiro.web.model.dto.generator.GeneratorAddRequest;
-import com.shiro.web.model.dto.generator.GeneratorQueryRequest;
-import com.shiro.web.model.dto.generator.GeneratorUpdateRequest;
-import com.shiro.web.model.dto.generator.GeneratorUseRequest;
+import com.shiro.web.model.dto.generator.*;
 import com.shiro.web.model.entity.Generator;
 import com.shiro.web.model.entity.User;
 import com.shiro.web.model.vo.GeneratorVO;
@@ -40,7 +37,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 
@@ -249,7 +245,7 @@ public class GeneratorController {
             response.getOutputStream().write(fileBytes);
             response.getOutputStream().flush();
         } catch (Exception e) {
-            log.error("file download failure,file path = " + distPath, e);
+            log.error("file download failure,file path = {}", distPath, e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "下载失败");
         }
     }
@@ -267,12 +263,10 @@ public class GeneratorController {
         if (!FileUtil.exist(tempDistZip)) {
             FileUtil.touch(tempDistZip);
         }
-        Future<Void> future = minioManager.downloadFile(distPath, tempDistZip);
-        //等待下载完成
         try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成器下载失败!");
+            minioManager.downloadFile(distPath, tempDistZip);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "文件下载失败!");
         }
         File unzipDir = ZipUtil.unzip(tempDistZip);
         //写入Json配置文件用于生成代码
@@ -352,5 +346,18 @@ public class GeneratorController {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "产物包不存在");
         }
         return distPath;
+    }
+
+    /**
+     * 在线制作代码生成器
+     *
+     * @param generatorMakeRequest 生成器制作请求
+     * @param response             响应
+     */
+    @PostMapping("/make")
+    public void makeGenerator(@RequestBody GeneratorMakeRequest generatorMakeRequest, HttpServletResponse response) {
+        String zipFilePath = generatorMakeRequest.getZipFilePath();
+        Meta meta = generatorMakeRequest.getMeta();
+        generatorService.makeGenerator(zipFilePath, meta, response);
     }
 }

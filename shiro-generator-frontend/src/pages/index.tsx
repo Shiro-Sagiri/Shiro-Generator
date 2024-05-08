@@ -117,7 +117,6 @@ const IndexPage = () => {
         </QueryFilter>
       </div>
       <List
-        // className={`${CardListStyle} ${AntListItemStyle}`}
         grid={{
           gutter: 16,
           xs: 1,

@@ -1,6 +1,6 @@
 import React from "react";
 import {Descriptions, DescriptionsProps, Divider} from "antd";
-import {FileOutlined} from "@ant-design/icons";
+import {FileOutlined, InfoCircleOutlined} from "@ant-design/icons";
 
 interface Props {
   fileConfig: API.FileConfig
@@ -12,28 +12,28 @@ const FileConfig: React.FC<Props> = (props) => {
     return <></>
   }
 
-  // const baseInfoItems: DescriptionsProps['items'] = [
-  //   {
-  //     key: 'inputRootPath',
-  //     label: '输入根路径',
-  //     children: <p>{fileConfig.inputRootPath}</p>
-  //   },
-  //   {
-  //     key: 'outputRootPath',
-  //     label: '输出根路径',
-  //     children: <p>{fileConfig.outputRootPath}</p>
-  //   },
-  //   {
-  //     key: 'sourceRootPath',
-  //     label: '项目根路径',
-  //     children: <p>{fileConfig.sourceRootPath}</p>
-  //   },
-  //   {
-  //     key: 'type',
-  //     label: '文件类型',
-  //     children: <p>{fileConfig.type}</p>
-  //   }
-  // ]
+  const baseInfoItems: DescriptionsProps['items'] = [
+    {
+      key: 'inputRootPath',
+      label: '输入根路径',
+      children: <p>{fileConfig.inputRootPath}</p>
+    },
+    {
+      key: 'outputRootPath',
+      label: '输出根路径',
+      children: <p>{fileConfig.outputRootPath}</p>
+    },
+    {
+      key: 'sourceRootPath',
+      label: '项目根路径',
+      children: <p>{fileConfig.sourceRootPath}</p>
+    },
+    {
+      key: 'type',
+      label: '文件类型',
+      children: <p>{fileConfig.type}</p>
+    }
+  ]
 
   const fileListView = (files?: API.FileInfo[]) => {
     if (!files) {
@@ -107,7 +107,7 @@ const FileConfig: React.FC<Props> = (props) => {
 
   return (
     <div>
-      {/*<Descriptions title={<><InfoCircleOutlined/> 基本信息</>} column={2} items={baseInfoItems}/>*/}
+      <Descriptions title={<><InfoCircleOutlined/> 基本信息</>} column={2} items={baseInfoItems}/>
       <div style={{marginBottom: 16}}></div>
       <Descriptions title={<><FileOutlined/> 文件列表</>}/>
       {fileListView(fileConfig.files)}

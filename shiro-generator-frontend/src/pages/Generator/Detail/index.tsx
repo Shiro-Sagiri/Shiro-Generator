@@ -1,4 +1,3 @@
-import {useParams} from "react-router";
 import {downloadGeneratorByIdUsingGet, getGeneratorVoByIdUsingGet} from "@/services/backend/generatorController";
 import {Button, Card, Col, Image, message, Row, Space, Tabs, Typography} from "antd";
 import React, {useEffect, useState} from "react";
@@ -10,9 +9,9 @@ import FileConfig from "@/pages/Generator/Detail/components/FileConfig";
 import ModelConfig from "@/pages/Generator/Detail/components/ModelConfig";
 import AuthorInfo from "@/pages/Generator/Detail/components/AuthorInfo";
 import {saveAs} from "file-saver";
-import {Link} from "umi";
-import {useModel} from "@umijs/max";
+import {Link, useModel} from "@umijs/max";
 import {MINIO_HOST} from "@/constants";
+import {useParams} from "@@/exports";
 
 const GeneratorDetail: React.FC = () => {
   const {id} = useParams()
@@ -77,7 +76,9 @@ const GeneratorDetail: React.FC = () => {
             <Typography.Paragraph type="secondary">作者: {data.author}</Typography.Paragraph>
             <div style={{marginBottom: 24}}/>
             <Space size="middle">
-              <Button type="primary">立即使用</Button>
+              <Link to={`/generator/use/${id}`}>
+                <Button type="primary">立即使用</Button>
+              </Link>
               {DownloadButton}
               {EditButton}
             </Space>

@@ -1,13 +1,13 @@
 import React from "react";
-import {Descriptions, DescriptionsProps, Divider} from "antd";
-import {FileOutlined} from "@ant-design/icons";
+import { Descriptions, DescriptionsProps, Divider } from "antd";
+import { FileOutlined } from "@ant-design/icons";
 
 interface Props {
   modelConfig: API.ModelConfig
 }
 
 const ModelConfig: React.FC<Props> = (props) => {
-  const {modelConfig} = props
+  const { modelConfig } = props
   if (!modelConfig) {
     return <></>
   }
@@ -41,7 +41,7 @@ const ModelConfig: React.FC<Props> = (props) => {
                 children: <p>{modelListView(model.models)}</p>
               }
             ]
-            return <Descriptions key={index} column={1} title={model.groupName} items={groupModelItems}/>
+            return <Descriptions key={index} column={1} title={model.groupName} items={groupModelItems} />
           }
 
           const modelItems: DescriptionsProps['items'] = [
@@ -63,23 +63,18 @@ const ModelConfig: React.FC<Props> = (props) => {
             {
               key: 'defaultValue',
               label: '默认值',
-              children: <p>{model.defaultValue as any}</p>
+              children: <p>{String(model.defaultValue)}</p>
             },
             {
               key: 'abbr',
               label: '缩写',
               children: <p>{model.abbr}</p>
-            },
-            {
-              key: 'condition',
-              label: '条件',
-              children: <p>{model.condition}</p>
             }
           ]
 
           return <>
-            <Descriptions column={2} key={index} items={modelItems}/>
-            <Divider/>
+            <Descriptions column={2} key={index} items={modelItems} />
+            <Divider />
           </>
         })}
       </>
@@ -88,7 +83,7 @@ const ModelConfig: React.FC<Props> = (props) => {
 
   return (
     <div>
-      <Descriptions title={<><FileOutlined/> 模型列表</>}/>
+      <Descriptions title={<><FileOutlined /> 模型列表</>} />
       {modelListView(modelConfig.models)}
     </div>
   )

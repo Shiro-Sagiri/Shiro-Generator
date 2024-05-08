@@ -21,7 +21,7 @@ public class FileGenerator {
         //生成动态文件
         templatePath = projectPath + File.separator + "src/main/resources/templates/MainTemplate.java.ftl";
         String destPath = projectPath + File.separator + "acm-template/src/com/yupi/acm/MainTemplate.java";
-        DynamicFileGenerator.doGenerate(templatePath, destPath, model);
+        DynamicFileGenerator.doGenerateByPath(templatePath, destPath, model);
     }
 
 }

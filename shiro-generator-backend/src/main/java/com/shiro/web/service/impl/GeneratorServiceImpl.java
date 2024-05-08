@@ -1,13 +1,22 @@
 package com.shiro.web.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ZipUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.shiro.maker.generator.main.GenerateTemplate;
+import com.shiro.maker.generator.main.ZipGenerator;
+import com.shiro.maker.meta.Meta;
 import com.shiro.web.common.ErrorCode;
 import com.shiro.web.constant.CommonConstant;
 import com.shiro.web.exception.BusinessException;
 import com.shiro.web.exception.ThrowUtils;
+import com.shiro.web.manager.MinioManager;
 import com.shiro.web.mapper.GeneratorMapper;
 import com.shiro.web.model.dto.generator.GeneratorQueryRequest;
 import com.shiro.web.model.entity.Generator;
@@ -22,9 +31,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -35,6 +51,8 @@ public class GeneratorServiceImpl extends ServiceImpl<GeneratorMapper, Generator
         implements GeneratorService {
     @Resource
     private UserService userService;
+    @Resource
+    private MinioManager minioManager;
 
     @Override
     public void validGenerator(Generator generator, boolean add) {
@@ -48,7 +66,7 @@ public class GeneratorServiceImpl extends ServiceImpl<GeneratorMapper, Generator
         String tags = generator.getTags();
         // 创建时，参数不能为空
         if (add) {
-            ThrowUtils.throwIf(StringUtils.isAnyBlank(name, description,tags ,author,basePackage), ErrorCode.PARAMS_ERROR);
+            ThrowUtils.throwIf(StringUtils.isAnyBlank(name, description, tags, author, basePackage), ErrorCode.PARAMS_ERROR);
         }
         // 有参数则校验
         if (StringUtils.isNotBlank(name) && name.length() > 80) {
@@ -112,6 +130,54 @@ public class GeneratorServiceImpl extends ServiceImpl<GeneratorMapper, Generator
         UserVO userVO = userService.getUserVO(user);
         generatorVO.setUser(userVO);
         return generatorVO;
+    }
+
+    @Override
+    public void makeGenerator(String zipFilePath, Meta meta, HttpServletResponse response) {
+        //模板文件压缩包路径判空
+        if (StrUtil.isBlank(zipFilePath)) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "压缩包不存在");
+        }
+        //创建工作空间,用于存放模板文件,临时文件等
+        String projectPath = System.getProperty("user.dir"); //工作空间
+        String id = IdUtil.getSnowflakeNextId() + RandomUtil.randomString(6); //生成随机id
+        String tempDirPath = String.format("%s/.temp/make/%s", projectPath, id);
+        //下载模板文件压缩包到本地
+        String localZipFilePath = tempDirPath + "/project.zip";
+        if (!FileUtil.exist(localZipFilePath)) {
+            FileUtil.touch(localZipFilePath);
+        }
+        try {
+            minioManager.downloadFile(zipFilePath, localZipFilePath);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "压缩包下载失败!");
+        }
+        //解压模板文件
+        File unzipDistFile = ZipUtil.unzip(localZipFilePath);
+        //构造meta对象
+        String sourceRootPath = unzipDistFile.getAbsolutePath();
+        meta.getFileConfig().setSourceRootPath(sourceRootPath);
+        String outputPath = String.format("%s/generated/%s", tempDirPath, meta.getName());
+        //调用制作器
+        GenerateTemplate generator = new ZipGenerator();
+        try {
+            generator.doGenerate(meta, outputPath);
+        } catch (IOException | InterruptedException e) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "生成器制作失败!");
+        }
+        //返回生成结果
+        String suffix = "-dist.zip";
+        String distFileName = meta.getName() + suffix;
+        String distFilePath = outputPath + distFileName;
+        response.setContentType("application/octet-stream;charset=uft-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + distFileName);
+        try {
+            Files.copy(Paths.get(distFilePath), response.getOutputStream());
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "下载失败!");
+        }
+        //异步清理临时文件
+        CompletableFuture.runAsync(() -> FileUtil.del(tempDirPath));
     }
 
     @Override

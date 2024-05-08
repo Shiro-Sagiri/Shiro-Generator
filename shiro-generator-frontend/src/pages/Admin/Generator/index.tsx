@@ -1,26 +1,18 @@
-import {type ActionType, ProColumns, ProTable} from "@ant-design/pro-components";
-import {deleteGeneratorUsingPost, listGeneratorByPageUsingPost} from "@/services/backend/generatorController";
-import React, {useRef, useState} from "react";
-import {Button, Input, message, Modal, Select, Space, Tag, Typography} from "antd";
-import {FormInstance} from "antd/lib";
-import {useEmotionCss} from "@ant-design/use-emotion-css";
-import CreateModal from "@/pages/Admin/Generator/components/CreateModal";
-import UpdateModal from "@/pages/Admin/Generator/components/UpdateModal";
-import {PlusOutlined} from "@ant-design/icons";
+import { type ActionType, ProColumns, ProTable } from "@ant-design/pro-components";
+import { deleteGeneratorUsingPost, listGeneratorByPageUsingPost } from "@/services/backend/generatorController";
+import React, { useRef, useState } from "react";
+import { Button, Input, message, Select, Space, Tag, Typography, Image } from "antd";
+import { FormInstance } from "antd/lib";
+import { useEmotionCss } from "@ant-design/use-emotion-css";
+import { PlusOutlined } from "@ant-design/icons";
+import { MINIO_HOST } from "@/constants";
+import { Link } from "@umijs/max";
 
 const Generator = () => {
 
   const [tags, setTags] = useState<string[]>([]);
-  const [isModalOpen, setModalOpen] = useState<boolean>(false);
-  const [config, setConfig] = useState<object>();
   const formRef = useRef<FormInstance>();
-  // 是否显示新建窗口
-  const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
-  // 是否显示更新窗口
-  const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
-  // 当前用户点击的数据
-  const [currentRow, setCurrentRow] = useState<API.Generator>();
 
   /**
    * 删除节点
@@ -45,21 +37,6 @@ const Generator = () => {
     }
   };
 
-  const handleCancel = () => {
-    setModalOpen(false);
-  };
-
-  const showConfig = (record: API.Generator) => {
-    setConfig({
-      '版本': record.version,
-      '包名': record.basePackage,
-      '输出路径': record.distPath,
-      '文件配置': record.fileConfig,
-      '模型配置': record.modelConfig
-    })
-    setModalOpen(true)
-  }
-
   const highlight = useEmotionCss(() => {
     return {
       backgroundColor: 'yellow'
@@ -72,7 +49,7 @@ const Generator = () => {
       dataIndex: 'searchText',
       hideInTable: true,
       renderFormItem: () => {
-        return <Input placeholder="在名称作者和描述中搜索"/>;
+        return <Input placeholder="在名称作者和描述中搜索" />;
       },
       hideInForm: true
     },
@@ -87,13 +64,16 @@ const Generator = () => {
     {
       title: '图片',
       dataIndex: 'picture',
-      valueType: 'image',
+      valueType: 'text',
       align: 'center',
       fieldProps: {
         width: 64,
       },
       hideInSearch: true,
-      hideInForm: true
+      hideInForm: true,
+      render: (url) => {
+        return <Image width="100px" src={MINIO_HOST + url} />;
+      }
     },
     {
       title: '名称',
@@ -138,7 +118,7 @@ const Generator = () => {
           value: tag,
           label: <Tag color={"cyan"}>{tag}</Tag>,
         }));
-        return <Select placeholder={"请选择"} options={options} mode="tags"/>;
+        return <Select placeholder={"请选择"} options={options} mode="tags" />;
       },
       render: (_, record) => {
         if (!record.tags) {
@@ -207,17 +187,11 @@ const Generator = () => {
       align: 'center',
       render: (_, record) => (
         <Space size="middle">
-          <Typography.Link type="success" onClick={() => showConfig(record)}>
-            配置
-          </Typography.Link>
-          <Typography.Link
-            onClick={() => {
-              setCurrentRow(record);
-              setUpdateModalVisible(true);
-            }}
-          >
-            修改
-          </Typography.Link>
+          <Link to={`/generator/update?id=${record.id}`}>
+            <Typography.Link>
+              修改
+            </Typography.Link>
+          </Link>
           <Typography.Link type="danger" onClick={() => handleDelete(record)}>
             删除
           </Typography.Link>
@@ -230,15 +204,14 @@ const Generator = () => {
     <div>
       <ProTable<API.Generator, API.GeneratorQueryRequest>
         toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCreateModalVisible(true);
-            }}
-          >
-            <PlusOutlined/> 新建
-          </Button>,
+          <Link key="link" to="/generator/add">
+            <Button
+              type="primary"
+              key="primary"
+            >
+              <PlusOutlined /> 新建
+            </Button>
+          </Link>
         ]}
         actionRef={actionRef}
         formRef={formRef}
@@ -250,7 +223,7 @@ const Generator = () => {
         request={async (params, sort, filter) => {
           const sortField = Object.keys(sort)?.[0]
           const sortOrder = sort?.[sortField] ?? undefined
-          const {data, code} = await listGeneratorByPageUsingPost({
+          const { data, code } = await listGeneratorByPageUsingPost({
             ...params,
             sortField,
             sortOrder,
@@ -273,34 +246,6 @@ const Generator = () => {
           };
         }}
         columns={columns}
-      />
-      <Modal title="配置信息" open={isModalOpen} onCancel={handleCancel} footer={() => undefined} centered
-             destroyOnClose>
-        <pre>{JSON.stringify(config, null, 2)}</pre>
-      </Modal>
-      <CreateModal
-        visible={createModalVisible}
-        columns={columns}
-        onSubmit={() => {
-          setCreateModalVisible(false);
-          actionRef.current?.reload();
-        }}
-        onCancel={() => {
-          setCreateModalVisible(false);
-        }}
-      />
-      <UpdateModal
-        visible={updateModalVisible}
-        columns={columns}
-        oldData={currentRow}
-        onSubmit={() => {
-          setUpdateModalVisible(false);
-          setCurrentRow(undefined);
-          actionRef.current?.reload();
-        }}
-        onCancel={() => {
-          setUpdateModalVisible(false);
-        }}
       />
     </div>
   )

@@ -1,6 +1,6 @@
 package com.shiro.web.model.dto.generator;
 
-import com.shiro.web.meta.Meta;
+import com.shiro.maker.meta.Meta;
 import lombok.Data;
 
 import java.io.Serializable;

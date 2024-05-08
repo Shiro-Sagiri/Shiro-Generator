@@ -1,7 +1,7 @@
 package com.shiro.web.model.vo;
 
 import cn.hutool.json.JSONUtil;
-import com.shiro.web.meta.Meta;
+import com.shiro.maker.meta.Meta;
 import com.shiro.web.model.entity.Generator;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;

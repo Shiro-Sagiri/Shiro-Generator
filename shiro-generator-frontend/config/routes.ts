@@ -40,6 +40,11 @@ export default [
         component: './Generator/Detail',
         hideInMenu: true
       },
+      {
+        path: 'use/:id',
+        component: './Generator/Use',
+        hideInMenu: true
+      }
     ]
   },
   {path: '*', layout: false, component: './404'},
