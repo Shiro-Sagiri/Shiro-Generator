@@ -63,6 +63,13 @@ public class MinioManager {
         return getFileUrl(filePath);
     }
 
+    /**
+     * 下载文件
+     * @param filePath 下载文件路径
+     * @param localFilePath 本地存储路径
+     * @throws ExecutionException 执行异常
+     * @throws InterruptedException 中断异常
+     */
     public void downloadFile(String filePath, String localFilePath) throws ExecutionException, InterruptedException {
         Future<Void> future = threadPool.submit(() -> {
             try (FileOutputStream fileOutputStream = new FileOutputStream(localFilePath)) {

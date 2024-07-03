@@ -23,6 +23,7 @@ const UseGenerator = () => {
     }
     setLoading(true);
     try {
+      // @ts-ignore
       const res = await getGeneratorVoByIdUsingGet({ id });
       setData(res.data as API.GeneratorVO)
     } catch (error: any) {

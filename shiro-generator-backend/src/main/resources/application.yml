@@ -4,7 +4,7 @@ spring:
     name: shiro-generator-backend
   # 默认 dev 环境
   profiles:
-    active: local
+    active: prod
   # 支持 swagger3
   mvc:
     pathmatch:
@@ -14,20 +14,6 @@ spring:
     store-type: redis
     # 2h 过期
     timeout: 7200
-  # 数据库配置
-  # todo 需替换配置
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://shiro.work:3306/shiro_generator
-    username: root
-    password: atteity890560
-    # Redis 配置
-  redis:
-    database: 1
-    host: shiro.work
-    port: 6379
-    timeout: 5000
-    password: atteity890560
   # 文件上传
   servlet:
     multipart:

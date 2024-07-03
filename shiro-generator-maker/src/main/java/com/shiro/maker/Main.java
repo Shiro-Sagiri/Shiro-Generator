@@ -1,6 +1,7 @@
 package com.shiro.maker;
 
 import com.shiro.maker.generator.main.GenerateTemplate;
+import freemarker.template.TemplateException;
 
 import java.io.IOException;
 
@@ -10,7 +11,7 @@ public class Main {
         };
         try {
             generator.doGenerate();
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException | TemplateException e) {
             throw new RuntimeException(e);
         }
     }

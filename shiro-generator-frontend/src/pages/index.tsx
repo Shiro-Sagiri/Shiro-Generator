@@ -3,10 +3,10 @@ import React, {useEffect, useState} from "react";
 import {ProFormSelect, QueryFilter} from "@ant-design/pro-form";
 import {PageContainer, ProFormText} from "@ant-design/pro-components";
 import {Avatar, Card, Flex, Input, List, message, Tag, Typography} from "antd";
-import { Link } from "@umijs/max";
+import {Link} from "@umijs/max";
 import moment from "moment";
-import { MINIO_HOST } from "@/constants";
-import { UserOutlined } from "@ant-design/icons";
+import {MINIO_HOST} from "@/constants";
+import {UserOutlined} from "@ant-design/icons";
 
 export const tagListView = (tagList: string[]) => {
   if (!tagList) {
@@ -23,7 +23,7 @@ const IndexPage = () => {
 
   const DEFAULT_PAGE_PARAMS: PageRequest = {
     current: 1,
-    pageSize: 5,
+    pageSize: 4,
     sortField: 'createTime',
     sortOrder: 'descend'
   }
@@ -65,7 +65,7 @@ const IndexPage = () => {
 
   // @ts-ignore
   return (
-    <PageContainer pageHeaderRender={() => false}>
+    <PageContainer style={{paddingBottom: 0}} pageHeaderRender={() => false}>
       <div
         style={{
           padding: 24,
@@ -112,6 +112,7 @@ const IndexPage = () => {
           }}
         >
           <ProFormText label='名称' name="name"/>
+          {/*@ts-ignore*/}
           <ProFormSelect label='标签' name="tags" mode={"tags"} options={options}/>
           <ProFormText label='描述' name="description"/>
         </QueryFilter>
@@ -148,7 +149,10 @@ const IndexPage = () => {
             <Link to={`/generator/detail/${item.id}`}>
               <Card
                 hoverable
-                cover={<img src={MINIO_HOST + item.picture} alt={item.name}/>}
+                cover={<img height={300} style={{
+                  objectFit: 'cover',
+                  overflow: 'hidden'
+                }} src={MINIO_HOST + item.picture} alt={item.name}/>}
               >
                 <Card.Meta
                   title={<a>{item.name}</a>}

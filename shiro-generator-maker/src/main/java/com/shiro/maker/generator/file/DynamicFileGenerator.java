@@ -52,6 +52,7 @@ public class DynamicFileGenerator {
      * @param model        模板数据
      * @throws IOException IO异常
      */
+    @Deprecated
     public static void doGenerateByPath(String templatePath, String destPath, Object model) throws IOException {
         Configuration configuration = new Configuration(Configuration.VERSION_2_3_32);
         File templateFile = new File(templatePath);

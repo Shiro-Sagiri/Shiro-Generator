@@ -2,12 +2,11 @@ import Footer from '@/components/Footer';
 import {LockOutlined, UserOutlined} from '@ant-design/icons';
 import {LoginForm, ProFormText} from '@ant-design/pro-components';
 import {useEmotionCss} from '@ant-design/use-emotion-css';
-import {Helmet, history, useModel} from '@umijs/max';
+import {Helmet, history, useModel, Link} from '@umijs/max';
 import {message, Tabs} from 'antd';
 import React, {useState} from 'react';
 import Settings from '../../../../config/defaultSettings';
 import defaultSettings from "../../../../config/defaultSettings";
-import {Link} from "umi";
 import {userLoginUsingPost} from "@/services/backend/userController";
 
 const Login: React.FC = () => {

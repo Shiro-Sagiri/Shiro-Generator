@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.shiro.maker.generator.main.GenerateTemplate;
 import com.shiro.maker.generator.main.ZipGenerator;
 import com.shiro.maker.meta.Meta;
+import com.shiro.maker.meta.MetaValidator;
 import com.shiro.web.common.ErrorCode;
 import com.shiro.web.constant.CommonConstant;
 import com.shiro.web.exception.BusinessException;
@@ -26,6 +27,7 @@ import com.shiro.web.model.vo.UserVO;
 import com.shiro.web.service.GeneratorService;
 import com.shiro.web.service.UserService;
 import com.shiro.web.utils.SqlUtils;
+import freemarker.template.TemplateException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -157,19 +159,20 @@ public class GeneratorServiceImpl extends ServiceImpl<GeneratorMapper, Generator
         //构造meta对象
         String sourceRootPath = unzipDistFile.getAbsolutePath();
         meta.getFileConfig().setSourceRootPath(sourceRootPath);
+        MetaValidator.doValidateAndFill(meta);
         String outputPath = String.format("%s/generated/%s", tempDirPath, meta.getName());
         //调用制作器
         GenerateTemplate generator = new ZipGenerator();
         try {
             generator.doGenerate(meta, outputPath);
-        } catch (IOException | InterruptedException e) {
+        } catch (TemplateException | IOException | InterruptedException e) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "生成器制作失败!");
         }
         //返回生成结果
         String suffix = "-dist.zip";
         String distFileName = meta.getName() + suffix;
-        String distFilePath = outputPath + distFileName;
-        response.setContentType("application/octet-stream;charset=uft-8");
+        String distFilePath = outputPath + suffix;
+        response.setContentType("application/octet-stream;charset=utf-8");
         response.setHeader("Content-Disposition", "attachment; filename=" + distFileName);
         try {
             Files.copy(Paths.get(distFilePath), response.getOutputStream());
