@@ -21,6 +21,7 @@ import { useSearchParams } from 'react-router-dom';
 import { MINIO_HOST } from '@/constants';
 import ModelConfigForm from '@/pages/Generator/Add/components/ModelConfigForm';
 import FileConfigForm from './components/FileConfigForm';
+import GeneratorMaker from '@/pages/Generator/Add/components/GeneratorMaker';
 
 const GeneratorAdd = () => {
   const baseFormRef = useRef<ProFormInstance>();
@@ -29,6 +30,9 @@ const GeneratorAdd = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id');
   const [oldData, setOldData] = useState<API.GeneratorUpdateRequest>();
+  const [baseInfo, setBaseInfo] = useState<API.GeneratorUpdateRequest>();
+  const [modelConfig, setModelConfig] = useState<API.ModelConfig>();
+  const [fileConfig, setFileConfig] = useState<API.FileConfig>();
   const loadDate = async () => {
     if (!id) {
       return;
@@ -112,7 +116,14 @@ const GeneratorAdd = () => {
           onFinish={doSubmit}
           formProps={{ initialValues: oldData }}
         >
-          <StepsForm.StepForm name="base" title="基本信息" onFinish={async () => true}>
+          <StepsForm.StepForm
+            name="base"
+            title="基本信息"
+            onFinish={async (values) => {
+              setBaseInfo(values);
+              return true;
+            }}
+          >
             <ProFormText name="name" label="名称" placeholder="请输入名称" />
             <ProFormTextArea name="description" label="描述" placeholder="请输入描述" />
             <ProFormText name="basePackage" label="基础包" placeholder="请输入基础包" />
@@ -122,16 +133,33 @@ const GeneratorAdd = () => {
               <PictureUploader biz="generator_picture" />
             </ProFormItem>
           </StepsForm.StepForm>
-          <StepsForm.StepForm formRef={modelFormRef} name="modelConfig" title="模型配置">
+          <StepsForm.StepForm
+            formRef={modelFormRef}
+            name="modelConfig"
+            title="模型配置"
+            onFinish={async (values) => {
+              setModelConfig(values);
+              return true;
+            }}
+          >
             <ModelConfigForm formRef={modelFormRef} oldData={oldData} />
           </StepsForm.StepForm>
-          <StepsForm.StepForm formRef={fileFormRef} name="fileConfig" title="文件配置">
+          <StepsForm.StepForm
+            formRef={fileFormRef}
+            name="fileConfig"
+            title="文件配置"
+            onFinish={async (values) => {
+              setFileConfig(values);
+              return true;
+            }}
+          >
             <FileConfigForm formRef={fileFormRef} oldData={oldData} />
           </StepsForm.StepForm>
           <StepsForm.StepForm name="dist" title="生成器文件">
             <ProFormItem label="产物包" name="distPath">
               <FileUploader biz="generator_dist" description="请上传生成器文件压缩包" />
             </ProFormItem>
+            <GeneratorMaker meta={{ ...baseInfo, ...modelConfig, ...fileConfig }} />
           </StepsForm.StepForm>
         </StepsForm>
       )}

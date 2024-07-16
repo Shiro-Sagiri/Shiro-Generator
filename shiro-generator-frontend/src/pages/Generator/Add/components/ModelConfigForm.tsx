@@ -1,6 +1,6 @@
-import { Button, Card, Form, FormListFieldData, Input, Select, Space } from 'antd';
+import { Button, Card, Form, FormListFieldData, Input, Radio, Select, Space } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
-import React from 'react';
+import React, { useState } from 'react';
 import { ProFormInstance } from '@ant-design/pro-components';
 
 interface Props {
@@ -8,44 +8,60 @@ interface Props {
   oldData: any;
 }
 
+interface SingleFieldFormProps {
+  field: FormListFieldData;
+  remove?: (index: number | number[]) => void;
+}
+
+const SingleFieldForm: React.FC<SingleFieldFormProps> = ({ field, remove }) => {
+  const [type, setType] = useState<string>();
+  return (
+    <Space key={field.key}>
+      <Form.Item label="字段名称" name={[field.name, 'fieldName']}>
+        <Input />
+      </Form.Item>
+      <Form.Item label="描述" name={[field.name, 'description']}>
+        <Input />
+      </Form.Item>
+      <Form.Item label="类型" name={[field.name, 'type']}>
+        <Select
+          style={{ width: 100 }}
+          options={[
+            { value: 'String', label: '字符串型' },
+            { value: 'Boolean', label: '布尔型' },
+          ]}
+          onChange={(value) => {
+            setType(value);
+          }}
+        />
+      </Form.Item>
+      {type &&
+        (type === 'String' ? (
+          <Form.Item label="默认值" name={[field.name, 'defaultValue']}>
+            <Input />
+          </Form.Item>
+        ) : (
+          <Form.Item label="默认值" name={[field.name, 'defaultValue']}>
+            <Radio.Group>
+              <Radio value={true}>是</Radio>
+              <Radio value={false}>否</Radio>
+            </Radio.Group>
+          </Form.Item>
+        ))}
+      <Form.Item label="缩写" name={[field.name, 'abbr']}>
+        <Input />
+      </Form.Item>
+      {remove && (
+        <Button type="text" danger onClick={() => remove(field.name)}>
+          删除
+        </Button>
+      )}
+    </Space>
+  );
+};
+
 const ModelConfigForm: React.FC<Props> = (props) => {
   const { formRef, oldData } = props;
-
-  const SingleFieldForm = (
-    field: FormListFieldData,
-    remove?: (index: number | number[]) => void,
-  ) => {
-    return (
-      <Space key={field.key}>
-        <Form.Item label="字段名称" name={[field.name, 'fieldName']}>
-          <Input />
-        </Form.Item>
-        <Form.Item label="描述" name={[field.name, 'description']}>
-          <Input />
-        </Form.Item>
-        <Form.Item label="类型" name={[field.name, 'type']}>
-          <Select
-            defaultValue="String"
-            options={[
-              { value: 'String', label: '字符串型' },
-              { value: 'Boolean', label: '布尔型' },
-            ]}
-          />
-        </Form.Item>
-        <Form.Item label="默认值" name={[field.name, 'defaultValue']}>
-          <Input placeholder="布尔型,需填写true或false" />
-        </Form.Item>
-        <Form.Item label="缩写" name={[field.name, 'abbr']}>
-          <Input />
-        </Form.Item>
-        {remove && (
-          <Button type="text" danger onClick={() => remove(field.name)}>
-            删除
-          </Button>
-        )}
-      </Space>
-    );
-  };
 
   return (
     <Form.List name={['modelConfig', 'models']}>
@@ -71,6 +87,9 @@ const ModelConfigForm: React.FC<Props> = (props) => {
                     <Form.Item label="组名" name={[field.name, 'groupName']}>
                       <Input />
                     </Form.Item>
+                    <Form.Item label="描述" name={[field.name, 'description']}>
+                      <Input />
+                    </Form.Item>
                     <Form.Item label="分组类别" name={[field.name, 'type']}>
                       <Input />
                     </Form.Item>
@@ -79,14 +98,20 @@ const ModelConfigForm: React.FC<Props> = (props) => {
                     </Form.Item>
                   </Space>
                 ) : (
-                  SingleFieldForm(field)
+                  <SingleFieldForm field={field} />
                 )}
                 {groupKey && (
                   <Form.Item>
                     <Form.List name={[field.name, 'models']}>
                       {(subFields, subOpt) => (
                         <div style={{ display: 'flex', rowGap: 16, flexDirection: 'column' }}>
-                          {subFields.map((subField) => SingleFieldForm(subField, subOpt.remove))}
+                          {subFields.map((subField) => (
+                            <SingleFieldForm
+                              key={subField.key}
+                              field={subField}
+                              remove={subOpt.remove}
+                            />
+                          ))}
                           <Button type="dashed" onClick={() => subOpt.add()} block>
                             添加组内字段
                           </Button>

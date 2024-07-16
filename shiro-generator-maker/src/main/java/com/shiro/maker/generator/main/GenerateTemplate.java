@@ -75,7 +75,7 @@ public abstract class GenerateTemplate {
      * @return distOutputPath 产物包路径
      */
     protected String buildDist(String outputPath, String sourceCopyDestPath, String jarPath,
-            String shellOutputFilePath) {
+                               String shellOutputFilePath) {
         String distOutputPath = outputPath + "-dist";
         // - 拷贝 jar 包
         String targetAbsolutePath = distOutputPath + File.separator + "target";

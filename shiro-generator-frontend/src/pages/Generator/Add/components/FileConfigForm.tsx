@@ -1,7 +1,7 @@
 import { Alert, Button, Card, Divider, Form, FormListFieldData, Input, Select, Space } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
-import React from 'react';
 import { ProFormInstance } from '@ant-design/pro-components';
+import React from 'react';
 
 interface Props {
   formRef: React.MutableRefObject<ProFormInstance | undefined>;
@@ -25,7 +25,7 @@ const FileConfigForm: React.FC<Props> = (props) => {
         </Form.Item>
         <Form.Item label="类型" name={[field.name, 'type']}>
           <Select
-            defaultValue="file"
+            style={{ width: 100 }}
             options={[
               { value: 'file', label: '文件' },
               { value: 'dir', label: '目录' },
@@ -34,7 +34,7 @@ const FileConfigForm: React.FC<Props> = (props) => {
         </Form.Item>
         <Form.Item label="生成类型" name={[field.name, 'generateType']}>
           <Select
-            defaultValue="dynamic"
+            style={{ width: 100 }}
             options={[
               { value: 'static', label: '静态' },
               { value: 'dynamic', label: '动态' },
