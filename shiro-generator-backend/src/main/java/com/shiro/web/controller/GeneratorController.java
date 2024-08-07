@@ -3,7 +3,6 @@ package com.shiro.web.controller;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.shiro.maker.meta.Meta;
@@ -273,7 +272,7 @@ public class GeneratorController {
         //写入Json配置文件用于生成代码
         String dataModelFilePath = tempDirPath + "/dataModel.json";
         String jsonStr = JSONUtil.toJsonStr(generatorUseRequest.getDataModel());
-        FileUtil.writeUtf8String(jsonStr, dataModelFilePath);
+        String dataPath = FileUtil.writeUtf8String(jsonStr, dataModelFilePath).getAbsolutePath();
         //获取生成脚本
         List<File> scriptFileList = FileUtil.loopFiles(unzipDir, 2, null).stream()
                 .filter(file -> file.isFile() && file.getName().contains("generator"))
@@ -283,7 +282,6 @@ public class GeneratorController {
         //获取用户操作系统,区分不同的命令
         String osName = System.getProperty("os.name").toLowerCase();
         ProcessBuilder processBuilder;
-        String commandArgs = "json-generate --filePath=" + dataModelFilePath;
         File scriptFile;
         if (osName.contains("win")) {
             // Windows系统
@@ -291,7 +289,7 @@ public class GeneratorController {
                     .filter(file -> "generator.bat".equals(file.getName()))
                     .findFirst()
                     .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_ERROR, "未找到可执行脚本文件"));
-            processBuilder = new ProcessBuilder("cmd.exe", "/c", scriptFile.getAbsolutePath(), commandArgs);
+            processBuilder = new ProcessBuilder("cmd.exe", "/c", scriptFile.getAbsolutePath(), "json-generator", "--filePath", dataPath);
         } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("mac")) {
             // Unix/Linux/Mac系统,非window系统添加可执行权限
             scriptFile = scriptFileList.stream()
@@ -304,11 +302,12 @@ public class GeneratorController {
             } catch (IOException e) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
-            processBuilder = new ProcessBuilder("/bin/bash", "-c", scriptFile.getAbsolutePath(), commandArgs);
+            processBuilder = new ProcessBuilder("/bin/bash", "-c", scriptFile.getAbsolutePath(), "json-generator", "--filePath", dataPath);
         } else {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持此操作系统: " + osName);
         }
         File scriptDir = scriptFile.getParentFile();
+        System.out.println(scriptDir);
         processBuilder.directory(scriptDir);
         try {
             Process process = processBuilder.start();
@@ -323,7 +322,7 @@ public class GeneratorController {
             int exitCode = process.waitFor();
             System.out.println("命令执行结束: " + exitCode);
             //下载文件
-            String generatedPath = scriptDir.getAbsolutePath() + File.separator + "generated";
+            String generatedPath = scriptDir.getAbsolutePath() + File.separator + "project";
             String resultPath = tempDirPath + File.separator + "result.zip";
             File resultFile = ZipUtil.zip(generatedPath, resultPath);
             response.setContentType("application/octet-stream;charset=UTF-8");
